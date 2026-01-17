@@ -122,7 +122,6 @@ search() {
 
 # dotfiles
 dotpush() {
-  cp ~/.zshrc ~/dotfiles/.zshrc
   cd ~/dotfiles && git add -A && git commit -m "${1:-Update dotfiles}" && git push
   cd - > /dev/null
   echo "✓ Dotfiles pushed"
