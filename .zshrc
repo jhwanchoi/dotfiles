@@ -10,8 +10,31 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 # ALIASES
 # ============================================
 alias ll='ls -al'
-alias k='kubectl'
 alias clr='clear'
+
+# docker
+alias d='docker'
+alias dc='docker compose'
+alias dps='docker ps'
+alias dpa='docker ps -a'
+alias di='docker images'
+alias dlog='docker logs -f'
+alias dex='docker exec -it'
+alias dstop='docker stop'
+alias drm='docker rm'
+alias dcu='docker compose up -d'
+alias dcd='docker compose down'
+
+# kubernetes
+alias k='kubectl'
+alias kgp='kubectl get pods'
+alias kgs='kubectl get svc'
+alias kgd='kubectl get deploy'
+alias kga='kubectl get all'
+alias klog='kubectl logs -f'
+alias kex='kubectl exec -it'
+alias kd='kubectl describe'
+alias kdel='kubectl delete'
 
 # ============================================
 # FUNCTIONS
@@ -138,8 +161,21 @@ cmds() {
   cat <<'EOF'
 == Aliases ==
   ll                         ls -al
-  k                          kubectl
   clr                        clear
+
+== Docker ==
+  d / dc                     docker / docker compose
+  dps / dpa                  ps / ps -a
+  di                         images
+  dlog / dex                 logs -f / exec -it
+  dstop / drm                stop / rm
+  dcu / dcd                  compose up -d / down
+
+== Kubernetes ==
+  k                          kubectl
+  kgp / kgs / kgd / kga      get pods/svc/deploy/all
+  klog / kex                 logs -f / exec -it
+  kd / kdel                  describe / delete
 
 == AWS ==
   awswho [profile]           Show AWS caller identity
