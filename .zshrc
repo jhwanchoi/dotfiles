@@ -15,9 +15,6 @@ alias clr='clear'
 # docker
 alias d='docker'
 alias dc='docker compose'
-alias dps='docker ps'
-alias dpa='docker ps -a'
-alias di='docker images'
 alias dlog='docker logs -f'
 alias dex='docker exec -it'
 alias dstop='docker stop'
@@ -36,9 +33,7 @@ alias kex='kubectl exec -it'
 alias kd='kubectl describe'
 alias kdel='kubectl delete'
 alias kctx='kubectl config use-context'
-alias kctxs='kubectl config get-contexts'
 alias kns='kubectl config set-context --current --namespace'
-alias knss='kubectl get namespaces'
 
 # ============================================
 # FUNCTIONS
@@ -113,10 +108,48 @@ cc() {
   done
 }
 
-# ports
+# list commands (pretty output)
 ports() {
-  echo "PORT\tPID\tPROCESS"
+  echo "\033[1;36mPORT\tPID\tPROCESS\033[0m"
+  echo "────\t───\t───────"
   lsof -iTCP -sTCP:LISTEN -nP 2>/dev/null | awk 'NR>1 {split($9,a,":"); printf "%s\t%s\t%s\n", a[length(a)], $2, $1}' | sort -n | uniq
+}
+
+dps() {
+  echo "\033[1;36mCONTAINER\tIMAGE\t\tSTATUS\033[0m"
+  echo "─────────\t─────\t\t──────"
+  docker ps --format '{{.Names}}\t{{.Image}}\t{{.Status}}' 2>/dev/null
+}
+
+dpa() {
+  echo "\033[1;36mCONTAINER\tIMAGE\t\tSTATUS\033[0m"
+  echo "─────────\t─────\t\t──────"
+  docker ps -a --format '{{.Names}}\t{{.Image}}\t{{.Status}}' 2>/dev/null
+}
+
+di() {
+  echo "\033[1;36mREPOSITORY\tTAG\tSIZE\033[0m"
+  echo "──────────\t───\t────"
+  docker images --format '{{.Repository}}\t{{.Tag}}\t{{.Size}}' 2>/dev/null
+}
+
+kctxs() {
+  echo "\033[1;36mCONTEXTS\033[0m"
+  echo "────────"
+  local current=$(kubectl config current-context 2>/dev/null)
+  kubectl config get-contexts -o name 2>/dev/null | while read ctx; do
+    [[ "$ctx" == "$current" ]] && echo "● \033[1;32m$ctx\033[0m (current)" || echo "  $ctx"
+  done
+}
+
+knss() {
+  echo "\033[1;36mNAMESPACES\033[0m"
+  echo "──────────"
+  local current=$(kubectl config view --minify -o jsonpath='{..namespace}' 2>/dev/null)
+  [[ -z "$current" ]] && current="default"
+  kubectl get namespaces -o jsonpath='{.items[*].metadata.name}' 2>/dev/null | tr ' ' '\n' | while read ns; do
+    [[ "$ns" == "$current" ]] && echo "● \033[1;32m$ns\033[0m (current)" || echo "  $ns"
+  done
 }
 
 killport() {
