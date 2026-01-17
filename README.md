@@ -29,6 +29,9 @@ git clone git@github.com:jhwanchoi/dotfiles.git ~/dotfiles
 | `cc` | 모드 선택 후 Claude 실행 |
 | `claude-bedrock-opus` | Bedrock Opus 4.5로 실행 (AWS 자동 로그인) |
 | `claude-bedrock-sonnet` | Bedrock Sonnet 4.5로 실행 (AWS 자동 로그인) |
+| **Dotfiles** ||
+| `dotpush [msg]` | .zshrc 변경사항을 GitHub에 push |
+| `dotpull` | 최신 dotfiles pull 받아서 설치 |
 | **기타** ||
 | `cmds` | 전체 명령어 목록 보기 |
 

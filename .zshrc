@@ -119,6 +119,20 @@ search() {
   fi
 }
 
+# dotfiles
+dotpush() {
+  cp ~/.zshrc ~/dotfiles/.zshrc
+  cd ~/dotfiles && git add -A && git commit -m "${1:-Update dotfiles}" && git push
+  cd - > /dev/null
+  echo "✓ Dotfiles pushed"
+}
+
+dotpull() {
+  cd ~/dotfiles && git pull
+  cd - > /dev/null
+  ~/dotfiles/install.sh
+}
+
 # help
 cmds() {
   cat <<'EOF'
@@ -143,6 +157,10 @@ cmds() {
   cc                         Interactive mode selector
   claude-bedrock-opus        Bedrock Opus 4.5 (auto AWS login)
   claude-bedrock-sonnet      Bedrock Sonnet 4.5 (auto AWS login)
+
+== Dotfiles ==
+  dotpush [msg]              Push .zshrc changes to GitHub
+  dotpull                    Pull latest and install
 EOF
 }
 
