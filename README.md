@@ -15,6 +15,23 @@ git clone git@github.com:jhwanchoi/dotfiles.git ~/dotfiles
 
 | 명령어 | 설명 |
 |--------|------|
+| **Aliases** ||
+| `ll` | ls -al |
+| `clr` | clear |
+| **Docker** ||
+| `d` / `dc` | docker / docker compose |
+| `dps` / `dpa` | 컨테이너 목록 (실행중 / 전체) |
+| `di` | 이미지 목록 |
+| `dlog` / `dex` | logs -f / exec -it |
+| `dstop` / `drm` | stop / rm |
+| `dcu` / `dcd` | compose up -d / down |
+| **Kubernetes** ||
+| `k` | kubectl |
+| `kgp` / `kgs` / `kgd` / `kga` | get pods/svc/deploy/all |
+| `klog` / `kex` | logs -f / exec -it |
+| `kd` / `kdel` | describe / delete |
+| `kctx` / `kctxs` | context 변경 / 목록 |
+| `kns` / `knss` | namespace 변경 / 목록 |
 | **AWS** ||
 | `awswho [profile]` | AWS caller identity 확인 |
 | `awsconfig <profile>` | AWS profile 전환 |
@@ -48,3 +65,5 @@ Claude Code 플러그인 설정:
 - jq
 - bun (claude-hud용)
 - AWS CLI (Bedrock 사용 시)
+- Docker (docker 명령어 사용 시)
+- kubectl (kubernetes 명령어 사용 시)
