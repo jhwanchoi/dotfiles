@@ -11,6 +11,7 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 # ============================================
 alias ll='ls -al'
 alias k='kubectl'
+alias clr='clear'
 
 # ============================================
 # FUNCTIONS
@@ -139,6 +140,7 @@ cmds() {
 == Aliases ==
   ll                         ls -al
   k                          kubectl
+  clr                        clear
 
 == AWS ==
   awswho [profile]           Show AWS caller identity
