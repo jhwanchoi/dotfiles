@@ -35,6 +35,8 @@ alias klog='kubectl logs -f'
 alias kex='kubectl exec -it'
 alias kd='kubectl describe'
 alias kdel='kubectl delete'
+alias kctx='kubectl config use-context'
+alias kns='kubectl config set-context --current --namespace'
 
 # ============================================
 # FUNCTIONS
@@ -176,6 +178,7 @@ cmds() {
   kgp / kgs / kgd / kga      get pods/svc/deploy/all
   klog / kex                 logs -f / exec -it
   kd / kdel                  describe / delete
+  kctx / kns                 switch context / namespace
 
 == AWS ==
   awswho [profile]           Show AWS caller identity
