@@ -7,6 +7,11 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
 # ============================================
+# SECRETS (API keys in ~/.secrets, not tracked by git)
+# ============================================
+[ -f ~/.secrets ] && source ~/.secrets
+
+# ============================================
 # ALIASES
 # ============================================
 alias ll='ls -al'
@@ -182,6 +187,23 @@ search() {
 
 # dotfiles
 dotpush() {
+  echo "→ Syncing config files to dotfiles..."
+
+  # .claude (hooks, settings.json)
+  mkdir -p ~/dotfiles/.claude/hooks
+  cp -r ~/.claude/hooks/* ~/dotfiles/.claude/hooks/ 2>/dev/null
+  cp ~/.claude/settings.json ~/dotfiles/.claude/ 2>/dev/null
+
+  # .codex (config.toml)
+  mkdir -p ~/dotfiles/.codex
+  cp ~/.codex/config.toml ~/dotfiles/.codex/ 2>/dev/null
+
+  # .gemini (settings.json only - no credentials)
+  mkdir -p ~/dotfiles/.gemini
+  cp ~/.gemini/settings.json ~/dotfiles/.gemini/ 2>/dev/null
+
+  echo "✓ Config files synced"
+
   cd ~/dotfiles && git add -A && git commit -m "${1:-Update dotfiles}" && git push
   cd - > /dev/null
   echo "✓ Dotfiles pushed"
@@ -190,6 +212,24 @@ dotpush() {
 dotpull() {
   cd ~/dotfiles && git pull
   cd - > /dev/null
+
+  echo "→ Restoring config files..."
+
+  # .claude
+  mkdir -p ~/.claude/hooks
+  cp -r ~/dotfiles/.claude/hooks/* ~/.claude/hooks/ 2>/dev/null
+  cp ~/dotfiles/.claude/settings.json ~/.claude/ 2>/dev/null
+
+  # .codex
+  mkdir -p ~/.codex
+  cp ~/dotfiles/.codex/config.toml ~/.codex/ 2>/dev/null
+
+  # .gemini
+  mkdir -p ~/.gemini
+  cp ~/dotfiles/.gemini/settings.json ~/.gemini/ 2>/dev/null
+
+  echo "✓ Config files restored"
+
   ~/dotfiles/install.sh
 }
 
@@ -235,8 +275,8 @@ cmds() {
   claude-bedrock-sonnet      Bedrock Sonnet 4.5 (auto AWS login)
 
 == Dotfiles ==
-  dotpush [msg]              Push .zshrc changes to GitHub
-  dotpull                    Pull latest and install
+  dotpush [msg]              Sync configs (.claude/.codex/.gemini) & push
+  dotpull                    Pull latest & restore configs
 EOF
 }
 

@@ -1,0 +1,21 @@
+# Codex CLI Configuration
+
+# Default profile
+profile = "bedrock-120b"
+
+# Bedrock 20B profile (faster, cheaper)
+[profiles.bedrock-20b]
+model = "openai.gpt-oss-20b-1:0"
+model_provider = "bedrock"
+
+# Bedrock 120B profile (more capable)
+[profiles.bedrock-120b]
+model = "openai.gpt-oss-120b-1:0"
+model_provider = "bedrock"
+
+# AWS Bedrock provider configuration (Tokyo region)
+[model_providers.bedrock]
+name = "bedrock"
+base_url = "https://bedrock-runtime.ap-northeast-1.amazonaws.com/openai/v1"
+env_key = "BEDROCK_API_KEY"
+wire_api = "chat"

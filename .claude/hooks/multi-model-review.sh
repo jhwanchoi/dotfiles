@@ -72,10 +72,10 @@ $GEMINI_RESULT
 "
 fi
 
-# Codex 리뷰 (reasoning 태그 제거, timeout 대신 & + sleep + kill)
-CODEX_RESULT=$(echo "$REVIEW_PROMPT" | codex exec --profile bedrock-20b --skip-git-repo-check - 2>&1 &
+# Codex 리뷰 (AWS Bedrock GPT OSS 120B - API Key 인증)
+CODEX_RESULT=$(echo "$REVIEW_PROMPT" | codex exec --profile bedrock-120b --skip-git-repo-check - 2>&1 &
 CODEX_PID=$!
-sleep 25 && kill $CODEX_PID 2>/dev/null &
+sleep 90 && kill $CODEX_PID 2>/dev/null &
 wait $CODEX_PID 2>/dev/null) || true
 
 CODEX_RESULT=$(echo "$CODEX_RESULT" \
