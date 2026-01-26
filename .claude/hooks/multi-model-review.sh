@@ -1,9 +1,13 @@
 #!/bin/bash
-# Multi-Model Review Hook
-# Claude 응답 후 GPT/Gemini로 자동 검증
+# ============================================
+# @debate - Multi-Model Debate Orchestrator
+# Claude 🎭 → GPT 🔬 → Gemini 🔮 → 종합 ⚖️
+# 단계별 실행 및 출력
+# ============================================
 
-DEBUG_LOG="/tmp/claude-hook-debug.log"
-REVIEW_OUTPUT="/tmp/claude-review-output.txt"
+HOOKS_DIR="$HOME/.claude/hooks"
+STATE_DIR="$HOOKS_DIR/debate-state"
+DEBUG_LOG="/tmp/claude-debate-debug.log"
 
 INPUT=$(cat)
 STOP_HOOK_ACTIVE=$(echo "$INPUT" | jq -r '.stop_hook_active // false')
@@ -17,89 +21,113 @@ TRANSCRIPT_PATH=$(echo "$INPUT" | jq -r '.transcript_path // empty')
 
 # 마지막 사용자 메시지와 Claude 응답 추출
 LAST_USER=$(jq -s '[.[] | select(.type == "user")] | last | .message.content // empty' "$TRANSCRIPT_PATH" 2>/dev/null)
-LAST_ASSISTANT=$(jq -s '[.[] | select(.type == "assistant")] | last | .message.content | if type == "array" then [.[] | select(.type == "text") | .text] | join("\n") else . end // empty' "$TRANSCRIPT_PATH" 2>/dev/null | head -c 5000)
+LAST_ASSISTANT=$(jq -s '[.[] | select(.type == "assistant")] | last | .message.content | if type == "array" then [.[] | select(.type == "text") | .text] | join("\n") else . end // empty' "$TRANSCRIPT_PATH" 2>/dev/null)
 
 # ============================================
-# 실질적인 조건 체크
+# @debate 키워드 체크 (유일한 트리거 조건)
 # ============================================
-
-# 1. 응답이 200자 미만이면 스킵 (의미있는 내용이 아님)
-[[ ${#LAST_ASSISTANT} -lt 200 ]] && { echo "$(date): Skip - too short (${#LAST_ASSISTANT} chars)" >> "$DEBUG_LOG"; exit 0; }
-
-# 2. 사용자 요청 키워드 체크 (코드/설계/구현 관련)
-USER_KEYWORDS="구현|implement|작성|write|만들|create|수정|modify|fix|버그|bug|추가|add|삭제|delete|remove|리팩|refactor|설계|design|아키텍처|architecture|최적화|optimiz|테스트|test|API|함수|function|클래스|class|모듈|module|컴포넌트|component|스키마|schema|마이그|migrat|배포|deploy|설정|config"
-
-if ! echo "$LAST_USER" | grep -qiE "$USER_KEYWORDS"; then
-    echo "$(date): Skip - no action keywords in user message" >> "$DEBUG_LOG"
+if ! echo "$LAST_USER" | grep -qi "@debate"; then
     exit 0
 fi
 
-# 3. Claude 응답에 코드가 포함되어 있는지 체크 (``` 또는 실제 코드 패턴)
-HAS_CODE=false
-if echo "$LAST_ASSISTANT" | grep -qE '```|def |function |class |const |let |var |import |from |export |return |if \(|for \(|while \('; then
-    HAS_CODE=true
-fi
+echo "$(date): @debate triggered" >> "$DEBUG_LOG"
 
-# 4. 코드가 없으면 설계/아키텍처 관련 키워드 체크
-DESIGN_KEYWORDS="구조|structure|패턴|pattern|레이어|layer|서비스|service|모델|model|인터페이스|interface|의존성|dependency|모듈|module"
-
-if [[ "$HAS_CODE" == "false" ]]; then
-    if ! echo "$LAST_ASSISTANT" | grep -qiE "$DESIGN_KEYWORDS"; then
-        echo "$(date): Skip - no code or design content" >> "$DEBUG_LOG"
-        exit 0
-    fi
-fi
-
-echo "$(date): Proceeding with review (len=${#LAST_ASSISTANT}, hasCode=$HAS_CODE)" >> "$DEBUG_LOG"
+# Claude 응답 전달 (GPT 128K tokens, Gemini 1M tokens 지원)
+# GPT에게: 100K chars (~25K tokens)
+# 화면 표시용: 2000 chars
+CLAUDE_PROPOSAL=$(echo "$LAST_ASSISTANT" | head -c 100000)
+CLAUDE_SUMMARY=$(echo "$LAST_ASSISTANT" | head -c 2000)
 
 # ============================================
-# 리뷰 실행
+# 토론 시작 헤더
 # ============================================
+{
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "🎯 @debate 시작 - Multi-Model Debate"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+} >&2
 
-REVIEW_PROMPT="다음 코드/설계 내용을 검토하고 잠재적 문제점이나 개선사항을 지적해줘 (한국어, 3줄 이내, 핵심만):
+# ============================================
+# Step 1: Claude 제안 표시
+# ============================================
+{
+    echo ""
+    echo "[1/4] 🎭 Claude (창작자) 제안:"
+    echo "───────────────────────────────────────────────────"
+    echo "$CLAUDE_SUMMARY" | fold -s -w 60 | head -20
+    [[ ${#LAST_ASSISTANT} -gt 2000 ]] && echo "  ... ($(( ${#LAST_ASSISTANT} - 2000 ))자 더 있음, 전체 전달됨)"
+    echo ""
+} >&2
 
-$LAST_ASSISTANT"
+# ============================================
+# Step 2: GPT 검증
+# ============================================
+{
+    echo "[2/4] 🔬 GPT (분석가) 검증 중..."
+    echo "───────────────────────────────────────────────────"
+} >&2
 
-# 리뷰 결과 수집
-REVIEW_RESULT=""
-
-# Gemini 리뷰
-GEMINI_RESULT=$(gemini -p "$REVIEW_PROMPT" 2>/dev/null | grep -v "^Loaded cached" | head -10)
-if [[ -n "$GEMINI_RESULT" ]]; then
-    REVIEW_RESULT+="✅ [Gemini]:
-$GEMINI_RESULT
-
-"
+GPT_RESULT=$("$HOOKS_DIR/debate-step1-gpt.sh" "$CLAUDE_PROPOSAL" 2>/dev/null)
+if [[ -z "$GPT_RESULT" ]]; then
+    GPT_RESULT="(GPT 응답 시간 초과 또는 오류)"
 fi
 
-# Codex 리뷰 (AWS Bedrock GPT OSS 120B - API Key 인증)
-CODEX_RESULT=$(echo "$REVIEW_PROMPT" | codex exec --profile bedrock-120b --skip-git-repo-check - 2>&1 &
-CODEX_PID=$!
-sleep 90 && kill $CODEX_PID 2>/dev/null &
-wait $CODEX_PID 2>/dev/null) || true
+# GPT 결과 저장 및 출력
+echo "$GPT_RESULT" > "$STATE_DIR/gpt-result.txt"
+{
+    echo "$GPT_RESULT"
+    echo ""
+} >&2
 
-CODEX_RESULT=$(echo "$CODEX_RESULT" \
-    | grep -v "^OpenAI Codex\|^--------\|^workdir:\|^model:\|^provider:\|^approval:\|^sandbox:\|^session id:\|^deprecated:\|^mcp startup:\|^user$\|^codex$" \
-    | sed 's/<reasoning>[^<]*<\/reasoning>//g' \
-    | sed '/^$/d' \
-    | tail -10)
+echo "$(date): GPT step completed" >> "$DEBUG_LOG"
 
-if [[ -n "$CODEX_RESULT" ]]; then
-    REVIEW_RESULT+="🔍 [Codex]:
-$CODEX_RESULT"
+# ============================================
+# Step 3: Gemini 검토
+# ============================================
+{
+    echo "[3/4] 🔮 Gemini (현자) 최종 검토 중..."
+    echo "───────────────────────────────────────────────────"
+} >&2
+
+GEMINI_RESULT=$("$HOOKS_DIR/debate-step2-gemini.sh" "$CLAUDE_PROPOSAL" "$GPT_RESULT" 2>/dev/null)
+if [[ -z "$GEMINI_RESULT" ]]; then
+    GEMINI_RESULT="(Gemini 응답 시간 초과 또는 오류)"
 fi
 
-# 결과가 있으면 stderr로 출력하고 exit 2 (Claude에게 전달)
-if [[ -n "$REVIEW_RESULT" ]]; then
-    echo "" >&2
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
-    echo "🔄 Multi-Model Review" >&2
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
-    echo "$REVIEW_RESULT" >&2
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
+# Gemini 결과 저장 및 출력
+echo "$GEMINI_RESULT" > "$STATE_DIR/gemini-result.txt"
+{
+    echo "$GEMINI_RESULT"
+    echo ""
+} >&2
 
-    echo "$(date): Review sent to Claude" >> "$DEBUG_LOG"
-    exit 2  # stderr를 Claude에게 전달
+echo "$(date): Gemini step completed" >> "$DEBUG_LOG"
+
+# ============================================
+# Step 4: 종합 판결
+# ============================================
+{
+    echo "[4/4] ⚖️ 종합 판결"
+    echo "───────────────────────────────────────────────────"
+} >&2
+
+SYNTHESIS=$("$HOOKS_DIR/debate-step3-synthesis.sh" "$CLAUDE_SUMMARY" "$GPT_RESULT" "$GEMINI_RESULT" 2>/dev/null)
+if [[ -z "$SYNTHESIS" ]]; then
+    SYNTHESIS="GPT와 Gemini 피드백을 종합하여 개선하세요."
 fi
 
-echo "$(date): No review result" >> "$DEBUG_LOG"
+# 종합 결과 저장 및 출력
+echo "$SYNTHESIS" > "$STATE_DIR/synthesis.txt"
+{
+    echo "$SYNTHESIS"
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "📝 Claude는 위 피드백을 반영하여 답변을 개선하세요."
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+} >&2
+
+echo "$(date): @debate completed" >> "$DEBUG_LOG"
+
+# Claude에게 피드백 전달
+exit 2
