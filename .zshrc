@@ -49,9 +49,10 @@ awsconfig() { export AWS_PROFILE=$1; echo "Switched to AWS profile: $1"; }
 
 # claude code
 _claude_check_aws() {
-  if ! aws sts get-caller-identity --profile prod &>/dev/null; then
-    echo "⚠ AWS prod profile not authenticated. Running: aws sso login --profile prod"
-    aws sso login --profile prod || { echo "✗ AWS SSO login failed"; return 1; }
+  if ! aws sts get-caller-identity --profile prod --no-verify-ssl &>/dev/null; then
+    echo "⚠ AWS prod profile not authenticated. Please configure it using 'aws configure --profile prod' or ensure your credentials are valid."
+    # aws sso login --profile prod || { echo "✗ AWS SSO login failed"; return 1; }
+    return 1 # SSO를 사용하지 않으므로 인증되지 않았으면 실패 처리
   fi
   [[ "$AWS_PROFILE" != "prod" ]] && export AWS_PROFILE=prod && echo "→ AWS_PROFILE=prod"
   return 0
@@ -91,12 +92,14 @@ claude() {
 claude-bedrock-opus() {
   _claude_check_aws || return 1
   _claude_set_bedrock "global.anthropic.claude-opus-4-5-20251101-v1:0" "Opus 4.5"
+  export NODE_TLS_REJECT_UNAUTHORIZED=0
   command claude "$@"
 }
 
 claude-bedrock-sonnet() {
   _claude_check_aws || return 1
   _claude_set_bedrock "global.anthropic.claude-sonnet-4-5-20250929-v1:0" "Sonnet 4.5"
+  export NODE_TLS_REJECT_UNAUTHORIZED=0
   command claude "$@"
 }
 
