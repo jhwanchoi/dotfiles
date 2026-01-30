@@ -144,6 +144,7 @@ model = "openai.gpt-oss-120b-1:0"
 model_provider = "bedrock"
 
 [model_providers.bedrock]
+name = "bedrock"
 base_url = "https://bedrock-runtime.ap-northeast-1.amazonaws.com/openai/v1"
 env_key = "BEDROCK_API_KEY"
 wire_api = "chat"
