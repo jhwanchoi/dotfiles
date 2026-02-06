@@ -103,11 +103,19 @@ claude-bedrock-sonnet() {
   command claude "$@"
 }
 
+claude-bedrock-opus46() {
+  _claude_check_aws || return 1
+  _claude_set_bedrock "global.anthropic.claude-opus-4-6-v1" "Opus 4.6"
+  export NODE_TLS_REJECT_UNAUTHORIZED=0
+  command claude "$@"
+}
+
 cc() {
   echo "Select Claude mode:"
-  select mode in "Subscription" "Bedrock Opus 4.5" "Bedrock Sonnet 4.5" "Cancel"; do
+  select mode in "Subscription" "Bedrock Opus 4.6" "Bedrock Opus 4.5" "Bedrock Sonnet 4.5" "Cancel"; do
     case $mode in
       "Subscription")       _claude_set_subscription; command claude "$@" ;;
+      "Bedrock Opus 4.6")   claude-bedrock-opus46 "$@" ;;
       "Bedrock Opus 4.5")   claude-bedrock-opus "$@" ;;
       "Bedrock Sonnet 4.5") claude-bedrock-sonnet "$@" ;;
       "Cancel")             return ;;
@@ -274,6 +282,7 @@ cmds() {
 == Claude Code ==
   claude                     Launch Claude (prompts if Bedrock configured)
   cc                         Interactive mode selector
+  claude-bedrock-opus46      Bedrock Opus 4.6 (auto AWS login)
   claude-bedrock-opus        Bedrock Opus 4.5 (auto AWS login)
   claude-bedrock-sonnet      Bedrock Sonnet 4.5 (auto AWS login)
 

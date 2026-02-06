@@ -1,7 +1,7 @@
 {
   "statusLine": {
     "type": "command",
-    "command": "bash -c '\"/Users/jihwanchoi/.bun/bin/bun\" \"$(ls -td /Users/jihwanchoi/.claude/plugins/cache/claude-hud/claude-hud/*/ 2>/dev/null | head -1)src/index.ts\"'"
+    "command": "bash -c '\"/Users/jihwan.choi2/.bun/bin/bun\" \"$(ls -td /Users/jihwan.choi2/.claude/plugins/cache/claude-hud/claude-hud/*/ 2>/dev/null | head -1)src/index.ts\"'"
   },
   "enabledPlugins": {
     "ai@mdpg-prompts": true,
