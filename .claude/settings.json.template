@@ -2,7 +2,7 @@
   "env": {
     "CLAUDE_CODE_USE_BEDROCK": "1",
     "AWS_REGION": "ap-northeast-2",
-    "ANTHROPIC_MODEL": "global.anthropic.claude-opus-4-6-v1"
+    "ANTHROPIC_MODEL": "global.anthropic.claude-opus-4-6-v1[1m]"
   },
   "statusLine": {
     "type": "command",
