@@ -1,26 +1,42 @@
 {
+  "env": {
+    "CLAUDE_CODE_USE_BEDROCK": "1",
+    "AWS_REGION": "ap-northeast-2",
+    "ANTHROPIC_MODEL": "global.anthropic.claude-opus-4-6-v1"
+  },
   "statusLine": {
     "type": "command",
-    "command": "bash -c '\"$HOME/.bun/bin/bun\" \"$(ls -td $HOME/.claude/plugins/cache/claude-hud/claude-hud/*/ 2>/dev/null | head -1)src/index.ts\"'"
+    "command": "node $HOME/.claude/plugins/cache/claude-hud/claude-hud/0.0.7/dist/index.js"
   },
   "enabledPlugins": {
-    "ai@mdpg-prompts": true,
-    "backend@mdpg-prompts": true,
-    "frontend@mdpg-prompts": true,
-    "data@mdpg-prompts": true,
-    "devops@mdpg-prompts": true,
-    "mlops@mdpg-prompts": true,
-    "tdd@mdpg-prompts": true,
-    "sdd@mdpg-prompts": true,
-    "testing@mdpg-prompts": true,
-    "docs@mdpg-prompts": true,
-    "review@mdpg-prompts": true,
-    "refactor@mdpg-prompts": true,
-    "languages@mdpg-prompts": true,
-    "architecture@mdpg-prompts": true,
-    "context@mdpg-prompts": true,
-    "meta@mdpg-prompts": true,
+    "atlassian@claude-plugins-official": true,
     "claude-hud@claude-hud": true,
-    "atlassian@claude-plugins-official": true
+    "frontend-design@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "github@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "ralph-loop@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true,
+    "commit-commands@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true,
+    "pr-review-toolkit@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true,
+    "agent-sdk-dev@claude-plugins-official": true,
+    "plugin-dev@claude-plugins-official": true,
+    "explanatory-output-style@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true,
+    "greptile@claude-plugins-official": true,
+    "hookify@claude-plugins-official": true,
+    "claude-code-setup@claude-plugins-official": true,
+    "learning-output-style@claude-plugins-official": true,
+    "stripe@claude-plugins-official": true,
+    "huggingface-skills@claude-plugins-official": true,
+    "playground@claude-plugins-official": true,
+    "coderabbit@claude-plugins-official": true,
+    "mdpg-prompts@mdpg-prompts": true
   }
 }

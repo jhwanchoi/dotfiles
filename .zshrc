@@ -200,10 +200,11 @@ search() {
 dotpush() {
   echo "→ Syncing config files to dotfiles..."
 
-  # .claude (hooks, settings.json)
+  # .claude (hooks, settings.json.template)
   mkdir -p ~/dotfiles/.claude/hooks
   cp -r ~/.claude/hooks/* ~/dotfiles/.claude/hooks/ 2>/dev/null
-  cp ~/.claude/settings.json ~/dotfiles/.claude/ 2>/dev/null
+  # settings.json → template 변환 ($HOME을 $HOME 리터럴로 치환)
+  sed "s|$HOME|\$HOME|g" ~/.claude/settings.json > ~/dotfiles/.claude/settings.json.template 2>/dev/null
 
   # .codex (config.toml)
   mkdir -p ~/dotfiles/.codex
@@ -229,7 +230,8 @@ dotpull() {
   # .claude
   mkdir -p ~/.claude/hooks
   cp -r ~/dotfiles/.claude/hooks/* ~/.claude/hooks/ 2>/dev/null
-  cp ~/dotfiles/.claude/settings.json ~/.claude/ 2>/dev/null
+  # template → settings.json 변환 ($HOME 리터럴을 실제 경로로 치환)
+  sed "s|\$HOME|$HOME|g" ~/dotfiles/.claude/settings.json.template > ~/.claude/settings.json 2>/dev/null
 
   # .codex
   mkdir -p ~/.codex
