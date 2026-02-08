@@ -5,6 +5,7 @@
     "AWS_REGION": "ap-northeast-2",
     "ANTHROPIC_MODEL": "global.anthropic.claude-opus-4-6-v1"
   },
+  "teammateMode": "tmux",
   "statusLine": {
     "type": "command",
     "command": "node $HOME/.claude/plugins/cache/claude-hud/claude-hud/0.0.7/dist/index.js"
