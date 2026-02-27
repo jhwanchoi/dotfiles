@@ -1,13 +1,13 @@
 {
   "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
     "CLAUDE_CODE_USE_BEDROCK": "1",
     "AWS_REGION": "ap-northeast-2",
-    "ANTHROPIC_MODEL": "global.anthropic.claude-opus-4-6-v1"
+    "ANTHROPIC_MODEL": "global.anthropic.claude-opus-4-6-v1[1m]",
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
   "statusLine": {
     "type": "command",
-    "command": "node $HOME/.claude/plugins/cache/claude-hud/claude-hud/0.0.7/dist/index.js"
+    "command": "node $HOME/.claude/hud/omc-hud.mjs"
   },
   "enabledPlugins": {
     "atlassian@claude-plugins-official": true,
@@ -35,6 +35,7 @@
     "huggingface-skills@claude-plugins-official": true,
     "playground@claude-plugins-official": true,
     "coderabbit@claude-plugins-official": true,
-    "mdpg-prompts@mdpg-prompts": true
+    "mdpg-prompts@mdpg-prompts": true,
+    "oh-my-claudecode@omc": true
   }
 }

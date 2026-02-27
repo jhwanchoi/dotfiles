@@ -66,7 +66,7 @@ _claude_set_subscription() {
 
 _claude_set_bedrock() {
   local model="$1" name="$2"
-  jq --arg m "$model" '.env = {CLAUDE_CODE_USE_BEDROCK: "1", AWS_REGION: "ap-northeast-2", ANTHROPIC_MODEL: $m}' \
+  jq --arg m "$model" '.env = {CLAUDE_CODE_USE_BEDROCK: "1", AWS_REGION: "ap-northeast-2", ANTHROPIC_MODEL: $m, CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS: "1"}' \
     ~/.claude/settings.json > ~/.claude/settings.json.tmp \
     && mv ~/.claude/settings.json.tmp ~/.claude/settings.json \
     && echo "✓ Claude: Bedrock $name (ap-northeast-2)"
@@ -110,15 +110,24 @@ claude-bedrock-opus46() {
   command claude "$@"
 }
 
+claude-bedrock-opus46-1m() {
+  _claude_check_aws || return 1
+  echo "⚠ 1M context: 200K 초과분 input 2x, output 1.5x 요금 부과"
+  _claude_set_bedrock "global.anthropic.claude-opus-4-6-v1[1m]" "Opus 4.6 (1M context)"
+  export NODE_TLS_REJECT_UNAUTHORIZED=0
+  command claude "$@"
+}
+
 cc() {
   echo "Select Claude mode:"
-  select mode in "Subscription" "Bedrock Opus 4.6" "Bedrock Opus 4.5" "Bedrock Sonnet 4.5" "Cancel"; do
+  select mode in "Subscription" "Bedrock Opus 4.6" "Bedrock Opus 4.6 (1M)" "Bedrock Opus 4.5" "Bedrock Sonnet 4.5" "Cancel"; do
     case $mode in
-      "Subscription")       _claude_set_subscription; command claude "$@" ;;
-      "Bedrock Opus 4.6")   claude-bedrock-opus46 "$@" ;;
-      "Bedrock Opus 4.5")   claude-bedrock-opus "$@" ;;
-      "Bedrock Sonnet 4.5") claude-bedrock-sonnet "$@" ;;
-      "Cancel")             return ;;
+      "Subscription")          _claude_set_subscription; command claude "$@" ;;
+      "Bedrock Opus 4.6")      claude-bedrock-opus46 "$@" ;;
+      "Bedrock Opus 4.6 (1M)") claude-bedrock-opus46-1m "$@" ;;
+      "Bedrock Opus 4.5")      claude-bedrock-opus "$@" ;;
+      "Bedrock Sonnet 4.5")    claude-bedrock-sonnet "$@" ;;
+      "Cancel")                return ;;
     esac
     break
   done
@@ -285,6 +294,7 @@ cmds() {
   claude                     Launch Claude (prompts if Bedrock configured)
   cc                         Interactive mode selector
   claude-bedrock-opus46      Bedrock Opus 4.6 (auto AWS login)
+  claude-bedrock-opus46-1m   Bedrock Opus 4.6 1M context (auto AWS login)
   claude-bedrock-opus        Bedrock Opus 4.5 (auto AWS login)
   claude-bedrock-sonnet      Bedrock Sonnet 4.5 (auto AWS login)
 
@@ -313,3 +323,9 @@ bindkey '^[[13;2u' self-insert-unmeta
 # STARTUP
 # ============================================
 cmds
+
+# Added by Antigravity
+export PATH="/Users/jihwan.choi2/.antigravity/antigravity/bin:$PATH"
+
+# Added by Antigravity
+export PATH="/Users/jihwan.choi2/.antigravity/antigravity/bin:$PATH"
