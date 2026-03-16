@@ -6,6 +6,11 @@ export PATH="/Applications/Visual Studio Code.app/Contents/Resources/app/bin:$PA
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
+# AWS (Bedrock - Claude Code / OpenCode 공통)
+export AWS_PROFILE=prod
+export AWS_REGION=ap-northeast-2
+
+
 # ============================================
 # SECRETS (API keys in ~/.secrets, not tracked by git)
 # ============================================
@@ -46,6 +51,7 @@ alias kns='kubectl config set-context --current --namespace'
 # aws
 awswho() { [[ -n "$1" ]] && aws sts get-caller-identity --profile "$1" || aws sts get-caller-identity; }
 awsconfig() { export AWS_PROFILE=$1; echo "Switched to AWS profile: $1"; }
+
 
 # claude code
 _claude_check_aws() {
@@ -89,20 +95,6 @@ claude() {
   command claude "$@"
 }
 
-claude-bedrock-opus() {
-  _claude_check_aws || return 1
-  _claude_set_bedrock "global.anthropic.claude-opus-4-5-20251101-v1:0" "Opus 4.5"
-  export NODE_TLS_REJECT_UNAUTHORIZED=0
-  command claude "$@"
-}
-
-claude-bedrock-sonnet() {
-  _claude_check_aws || return 1
-  _claude_set_bedrock "global.anthropic.claude-sonnet-4-5-20250929-v1:0" "Sonnet 4.5"
-  export NODE_TLS_REJECT_UNAUTHORIZED=0
-  command claude "$@"
-}
-
 claude-bedrock-opus46() {
   _claude_check_aws || return 1
   _claude_set_bedrock "global.anthropic.claude-opus-4-6-v1" "Opus 4.6"
@@ -110,23 +102,20 @@ claude-bedrock-opus46() {
   command claude "$@"
 }
 
-claude-bedrock-opus46-1m() {
+claude-bedrock-sonnet46() {
   _claude_check_aws || return 1
-  echo "⚠ 1M context: 200K 초과분 input 2x, output 1.5x 요금 부과"
-  _claude_set_bedrock "global.anthropic.claude-opus-4-6-v1[1m]" "Opus 4.6 (1M context)"
+  _claude_set_bedrock "global.anthropic.claude-sonnet-4-6" "Sonnet 4.6"
   export NODE_TLS_REJECT_UNAUTHORIZED=0
   command claude "$@"
 }
 
 cc() {
   echo "Select Claude mode:"
-  select mode in "Subscription" "Bedrock Opus 4.6" "Bedrock Opus 4.6 (1M)" "Bedrock Opus 4.5" "Bedrock Sonnet 4.5" "Cancel"; do
+  select mode in "Subscription" "Bedrock Opus 4.6" "Bedrock Sonnet 4.6" "Cancel"; do
     case $mode in
       "Subscription")          _claude_set_subscription; command claude "$@" ;;
       "Bedrock Opus 4.6")      claude-bedrock-opus46 "$@" ;;
-      "Bedrock Opus 4.6 (1M)") claude-bedrock-opus46-1m "$@" ;;
-      "Bedrock Opus 4.5")      claude-bedrock-opus "$@" ;;
-      "Bedrock Sonnet 4.5")    claude-bedrock-sonnet "$@" ;;
+      "Bedrock Sonnet 4.6")    claude-bedrock-sonnet46 "$@" ;;
       "Cancel")                return ;;
     esac
     break
@@ -294,9 +283,8 @@ cmds() {
   claude                     Launch Claude (prompts if Bedrock configured)
   cc                         Interactive mode selector
   claude-bedrock-opus46      Bedrock Opus 4.6 (auto AWS login)
-  claude-bedrock-opus46-1m   Bedrock Opus 4.6 1M context (auto AWS login)
-  claude-bedrock-opus        Bedrock Opus 4.5 (auto AWS login)
-  claude-bedrock-sonnet      Bedrock Sonnet 4.5 (auto AWS login)
+  claude-bedrock-sonnet46    Bedrock Sonnet 4.6 (auto AWS login)
+
 
 == Dotfiles ==
   dotpush [msg]              Sync configs (.claude/.codex/.gemini) & push
