@@ -1,21 +1,41 @@
 # Codex CLI Configuration
 
+# Default: OpenAI 구독제
+model = "gpt-5.4"
+personality = "pragmatic"
+
 [projects."/Users/jihwanchoi"]
 trust_level = "untrusted"
 
+[projects."/Users/jihwan.choi2/Documents/git"]
+trust_level = "trusted"
+
+[projects."/Users/jihwan.choi2"]
+trust_level = "trusted"
+
+[projects."/Users/jihwan.choi2/Documents/git/stradvision-mlops"]
+trust_level = "trusted"
+
 # Bedrock profile (GPT OSS 120B)
 [profiles.bedrock]
-model = 'openai.gpt-oss-120b-1:0'
+model = 'openai.gpt-oss-120b-1'
 model_provider = 'bedrock'
 
 # Bedrock profile (GPT OSS 20B - 더 빠름)
 [profiles.bedrock-20b]
-model = 'openai.gpt-oss-20b-1:0'
+model = 'openai.gpt-oss-20b-1'
 model_provider = 'bedrock'
 
-# AWS Bedrock provider (ap-northeast-1 Tokyo)
+# OpenAI profile (free-tier, rate limit 주의)
+[profiles.openai]
+model = 'gpt-5.3-codex'
+
+# AWS Bedrock via local SigV4 proxy (localhost:4100 → Tokyo)
 [model_providers.bedrock]
-name = 'AWS Bedrock (Tokyo)'
-base_url = 'https://bedrock-runtime.ap-northeast-1.amazonaws.com/openai/v1'
-env_key = 'AWS_BEDROCK_API_KEY'
-wire_api = 'chat'
+name = 'AWS Bedrock (SigV4 Proxy)'
+base_url = 'http://127.0.0.1:4100/openai/v1'
+env_key = 'BEDROCK_API_KEY'
+wire_api = 'responses'
+
+[notice.model_migrations]
+"gpt-5.3-codex" = "gpt-5.4"

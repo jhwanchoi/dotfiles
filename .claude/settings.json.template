@@ -2,40 +2,58 @@
   "env": {
     "CLAUDE_CODE_USE_BEDROCK": "1",
     "AWS_REGION": "ap-northeast-2",
-    "ANTHROPIC_MODEL": "global.anthropic.claude-opus-4-6-v1[1m]",
+    "ANTHROPIC_MODEL": "global.anthropic.claude-opus-4-6-v1",
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
+  "model": "global.anthropic.claude-opus-4-6-v1[1m]",
   "statusLine": {
     "type": "command",
-    "command": "node $HOME/.claude/hud/omc-hud.mjs"
+    "command": "node $HOME/.claude/plugins/cache/claude-hud/claude-hud/0.0.11/dist/index.js"
   },
   "enabledPlugins": {
     "atlassian@claude-plugins-official": true,
-    "claude-hud@claude-hud": true,
-    "frontend-design@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": false,
     "context7@claude-plugins-official": true,
-    "code-review@claude-plugins-official": true,
-    "github@claude-plugins-official": true,
+    "code-review@claude-plugins-official": false,
+    "github@claude-plugins-official": false,
     "feature-dev@claude-plugins-official": true,
-    "code-simplifier@claude-plugins-official": true,
-    "ralph-loop@claude-plugins-official": true,
-    "typescript-lsp@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": false,
+    "typescript-lsp@claude-plugins-official": false,
     "superpowers@claude-plugins-official": true,
     "commit-commands@claude-plugins-official": true,
     "security-guidance@claude-plugins-official": true,
-    "pr-review-toolkit@claude-plugins-official": true,
+    "pr-review-toolkit@claude-plugins-official": false,
     "pyright-lsp@claude-plugins-official": true,
-    "agent-sdk-dev@claude-plugins-official": true,
+    "agent-sdk-dev@claude-plugins-official": false,
     "plugin-dev@claude-plugins-official": true,
     "explanatory-output-style@claude-plugins-official": true,
     "claude-md-management@claude-plugins-official": true,
-    "hookify@claude-plugins-official": true,
     "claude-code-setup@claude-plugins-official": true,
-    "learning-output-style@claude-plugins-official": true,
-    "huggingface-skills@claude-plugins-official": true,
-    "playground@claude-plugins-official": true,
+    "learning-output-style@claude-plugins-official": false,
+    "huggingface-skills@claude-plugins-official": false,
+    "playground@claude-plugins-official": false,
     "coderabbit@claude-plugins-official": true,
-    "mdpg-prompts@mdpg-prompts": true,
-    "oh-my-claudecode@omc": true
-  }
+    "mdpg-prompts@mdpg-prompts": false,
+    "oh-my-claudecode@omc": false,
+    "claude-hud@claude-hud": true,
+    "stradvision-mlops@sv-mlops-claude-plugin": true,
+    "codex@openai-codex": true,
+    "ralph-loop@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "sv-mlops-claude-plugin": {
+      "source": {
+        "source": "git",
+        "url": "git@github.com:StradVision/sv-mlops-claude-plugin.git"
+      }
+    },
+    "openai-codex": {
+      "source": {
+        "source": "github",
+        "repo": "openai/codex-plugin-cc"
+      }
+    }
+  },
+  "effortLevel": "high",
+  "skipDangerousModePermissionPrompt": true
 }

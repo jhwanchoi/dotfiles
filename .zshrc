@@ -53,74 +53,7 @@ awswho() { [[ -n "$1" ]] && aws sts get-caller-identity --profile "$1" || aws st
 awsconfig() { export AWS_PROFILE=$1; echo "Switched to AWS profile: $1"; }
 
 
-# claude code
-_claude_check_aws() {
-  if ! aws sts get-caller-identity --profile prod --no-verify-ssl &>/dev/null; then
-    echo "⚠ AWS prod profile not authenticated. Please configure it using 'aws configure --profile prod' or ensure your credentials are valid."
-    # aws sso login --profile prod || { echo "✗ AWS SSO login failed"; return 1; }
-    return 1 # SSO를 사용하지 않으므로 인증되지 않았으면 실패 처리
-  fi
-  [[ "$AWS_PROFILE" != "prod" ]] && export AWS_PROFILE=prod && echo "→ AWS_PROFILE=prod"
-  return 0
-}
-
-_claude_set_subscription() {
-  jq 'del(.env)' ~/.claude/settings.json > ~/.claude/settings.json.tmp \
-    && mv ~/.claude/settings.json.tmp ~/.claude/settings.json \
-    && echo "✓ Claude: Subscription mode"
-}
-
-_claude_set_bedrock() {
-  local model="$1" name="$2"
-  jq --arg m "$model" '.env = {CLAUDE_CODE_USE_BEDROCK: "1", AWS_REGION: "ap-northeast-2", ANTHROPIC_MODEL: $m, CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS: "1"}' \
-    ~/.claude/settings.json > ~/.claude/settings.json.tmp \
-    && mv ~/.claude/settings.json.tmp ~/.claude/settings.json \
-    && echo "✓ Claude: Bedrock $name (ap-northeast-2)"
-}
-
-claude() {
-  if grep -q "CLAUDE_CODE_USE_BEDROCK" ~/.claude/settings.json 2>/dev/null; then
-    echo "⚠ Bedrock mode is currently configured."
-    echo "  1) Continue with Bedrock (auto AWS login)"
-    echo "  2) Switch to Subscription"
-    echo "  3) Cancel"
-    read "choice?Select [1-3]: "
-    case $choice in
-      1) _claude_check_aws || return 1 ;;
-      2) _claude_set_subscription ;;
-      3) return ;;
-      *) echo "Invalid choice"; return 1 ;;
-    esac
-  fi
-  command claude "$@"
-}
-
-claude-bedrock-opus46() {
-  _claude_check_aws || return 1
-  _claude_set_bedrock "global.anthropic.claude-opus-4-6-v1" "Opus 4.6"
-  export NODE_TLS_REJECT_UNAUTHORIZED=0
-  command claude "$@"
-}
-
-claude-bedrock-sonnet46() {
-  _claude_check_aws || return 1
-  _claude_set_bedrock "global.anthropic.claude-sonnet-4-6" "Sonnet 4.6"
-  export NODE_TLS_REJECT_UNAUTHORIZED=0
-  command claude "$@"
-}
-
-cc() {
-  echo "Select Claude mode:"
-  select mode in "Subscription" "Bedrock Opus 4.6" "Bedrock Sonnet 4.6" "Cancel"; do
-    case $mode in
-      "Subscription")          _claude_set_subscription; command claude "$@" ;;
-      "Bedrock Opus 4.6")      claude-bedrock-opus46 "$@" ;;
-      "Bedrock Sonnet 4.6")    claude-bedrock-sonnet46 "$@" ;;
-      "Cancel")                return ;;
-    esac
-    break
-  done
-}
+# claude code (Bedrock Opus 4.6 - settings.json에서 설정)
 
 # list commands (pretty output)
 ports() {
@@ -280,10 +213,7 @@ cmds() {
   search <pattern> [file]    Search pattern in file or current dir
 
 == Claude Code ==
-  claude                     Launch Claude (prompts if Bedrock configured)
-  cc                         Interactive mode selector
-  claude-bedrock-opus46      Bedrock Opus 4.6 (auto AWS login)
-  claude-bedrock-sonnet46    Bedrock Sonnet 4.6 (auto AWS login)
+  claude                     Launch Claude (Bedrock Opus 4.6)
 
 
 == Dotfiles ==
